@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Buffers.Text;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -236,6 +237,12 @@ namespace StackExchange.Redis
             var lastColonIndex = addressWithPort.LastIndexOf(':');
             if (lastColonIndex > 0)
             {
+                if (addressWithPort.Count(x => x == ':') > 1)
+                {
+                    var splitArray = addressWithPort.Split(':');
+                    addressWithPort = $"[{string.Join(":", splitArray.Take(splitArray.Length - 1))}]:{splitArray.Last()}";
+                }
+                
                 // IPv4 with port or IPv6
                 var closingIndex = addressWithPort.LastIndexOf(']');
                 if (closingIndex > 0)
