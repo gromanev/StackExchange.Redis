@@ -281,7 +281,7 @@ namespace StackExchange.Redis.Server
         }
         protected virtual void Set(int database, RedisKey key, RedisValue value) => throw new NotSupportedException();
         [RedisCommand(1)]
-        protected virtual TypedRedisValue Shutdown(RedisClient client, RedisRequest request)
+        protected new virtual TypedRedisValue Shutdown(RedisClient client, RedisRequest request)
         {
             DoShutdown(ShutdownReason.ClientInitiated);
             return TypedRedisValue.OK;

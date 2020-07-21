@@ -234,7 +234,7 @@ namespace StackExchange.Redis
             string portPart = null;
             if (string.IsNullOrEmpty(addressWithPort)) return null;
 
-            if (addressWithPort.Count(x => x == ':') > 1)
+            if (addressWithPort.Count(x => x == ':') > 1 && addressWithPort.Any(x => x != '['))
             {
                 var splitArray = addressWithPort.Split(':');
                 addressWithPort = $"[{string.Join(":", splitArray.Take(splitArray.Length - 1))}]:{splitArray.Last()}";
