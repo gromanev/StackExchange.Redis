@@ -5,11 +5,15 @@
     <Description>High performance Redis client, incorporating both synchronous and asynchronous usage.</Description>
     <AssemblyName>StackExchange.Redis</AssemblyName>
     <AssemblyTitle>StackExchange.Redis</AssemblyTitle>
-    <PackageId>StackExchange.Redis</PackageId>
+    <PackageId>StackExchange.Redis.IPv6</PackageId>
     <PackageTags>Async;Redis;Cache;PubSub;Messaging</PackageTags>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <DefineConstants Condition="'$(TargetFramework)' != 'net461'">$(DefineConstants);VECTOR_SAFE</DefineConstants>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Title>StackExchange.Redis.IPv6</Title>
+    <RepositoryUrl>https://github.com/gromanev/StackExchange.Redis</RepositoryUrl>
+    <PackageReleaseNotes />
   </PropertyGroup>
 
   <ItemGroup>

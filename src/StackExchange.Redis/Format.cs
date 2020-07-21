@@ -234,15 +234,15 @@ namespace StackExchange.Redis
             string portPart = null;
             if (string.IsNullOrEmpty(addressWithPort)) return null;
 
+            if (addressWithPort.Count(x => x == ':') > 1)
+            {
+                var splitArray = addressWithPort.Split(':');
+                addressWithPort = $"[{string.Join(":", splitArray.Take(splitArray.Length - 1))}]:{splitArray.Last()}";
+            }
+            
             var lastColonIndex = addressWithPort.LastIndexOf(':');
             if (lastColonIndex > 0)
             {
-                if (addressWithPort.Count(x => x == ':') > 1)
-                {
-                    var splitArray = addressWithPort.Split(':');
-                    addressWithPort = $"[{string.Join(":", splitArray.Take(splitArray.Length - 1))}]:{splitArray.Last()}";
-                }
-                
                 // IPv4 with port or IPv6
                 var closingIndex = addressWithPort.LastIndexOf(']');
                 if (closingIndex > 0)
