@@ -10,8 +10,8 @@ namespace StackExchange.Redis
 {
     internal class RedisDatabase : RedisBase, IDatabase
     {
-        internal RedisDatabase(ConnectionMultiplexer multiplexer, int db, object asyncState)
-            : base(multiplexer, asyncState)
+        internal RedisDatabase(ConnectionMultiplexer multiplexer, int db, object asyncState, Action<string> getCommandDelegate = null)
+            : base(multiplexer, asyncState, getCommandDelegate)
         {
             Database = db;
         }

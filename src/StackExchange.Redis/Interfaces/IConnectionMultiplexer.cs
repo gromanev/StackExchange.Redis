@@ -158,7 +158,8 @@ namespace StackExchange.Redis
         /// </summary>
         /// <param name="db">The database ID to get.</param>
         /// <param name="asyncState">The async state to pass to the created <see cref="IDatabase"/>.</param>
-        IDatabase GetDatabase(int db = -1, object asyncState = null);
+        /// <param name="getCommandDelegate"></param>
+        IDatabase GetDatabase(int db = -1, object asyncState = null, Action<string> getCommandDelegate = null);
 
         /// <summary>
         /// Obtain a configuration API for an individual server

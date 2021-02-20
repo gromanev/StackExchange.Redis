@@ -1407,13 +1407,14 @@ namespace StackExchange.Redis
         /// </summary>
         /// <param name="db">The ID to get a database for.</param>
         /// <param name="asyncState">The async state to pass into the resulting <see cref="RedisDatabase"/>.</param>
-        public IDatabase GetDatabase(int db = -1, object asyncState = null)
+        /// <param name="getCommandDelegate"></param>
+        public IDatabase GetDatabase(int db = -1, object asyncState = null, Action<string> getCommandDelegate = null)
         {
             db = ApplyDefaultDatabase(db);
 
             // if there's no async-state, and the DB is suitable, we can hand out a re-used instance
             return (asyncState == null && db <= MaxCachedDatabaseInstance)
-                ? GetCachedDatabaseInstance(db) : new RedisDatabase(this, db, asyncState);
+                ? GetCachedDatabaseInstance(db, getCommandDelegate) : new RedisDatabase(this, db, asyncState, getCommandDelegate);
         }
 
         // DB zero is stored separately, since 0-only is a massively common use-case
@@ -1421,17 +1422,17 @@ namespace StackExchange.Redis
         // side note: "databases 16" is the default in redis.conf; happy to store one extra to get nice alignment etc
         private IDatabase dbCacheZero;
         private IDatabase[] dbCacheLow;
-        private IDatabase GetCachedDatabaseInstance(int db) // note that we already trust db here; only caller checks range
+        private IDatabase GetCachedDatabaseInstance(int db, Action<string> getCommandDelegate = null) // note that we already trust db here; only caller checks range
         {
             // note we don't need to worry about *always* returning the same instance
             // - if two threads ask for db 3 at the same time, it is OK for them to get
             // different instances, one of which (arbitrarily) ends up cached for later use
             if (db == 0)
             {
-                return dbCacheZero ??= new RedisDatabase(this, 0, null);
+                return dbCacheZero ??= new RedisDatabase(this, 0, null, getCommandDelegate);
             }
             var arr = dbCacheLow ??= new IDatabase[MaxCachedDatabaseInstance];
-            return arr[db - 1] ?? (arr[db - 1] = new RedisDatabase(this, db, null));
+            return arr[db - 1] ?? (arr[db - 1] = new RedisDatabase(this, db, null, getCommandDelegate));
         }
 
         /// <summary>

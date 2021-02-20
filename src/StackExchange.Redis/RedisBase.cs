@@ -9,11 +9,13 @@ namespace StackExchange.Redis
         internal static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         internal readonly ConnectionMultiplexer multiplexer;
         protected readonly object asyncState;
+        private Action<string> _getCommandDelegate;
 
-        internal RedisBase(ConnectionMultiplexer multiplexer, object asyncState)
+        internal RedisBase(ConnectionMultiplexer multiplexer, object asyncState, Action<string> getCommandDelegate = null)
         {
             this.multiplexer = multiplexer;
             this.asyncState = asyncState;
+            _getCommandDelegate = getCommandDelegate;
         }
 
         IConnectionMultiplexer IRedisAsync.Multiplexer => multiplexer;
@@ -44,6 +46,7 @@ namespace StackExchange.Redis
         {
             if (message == null) return CompletedTask<T>.Default(asyncState);
             multiplexer.CheckMessage(message);
+            _getCommandDelegate?.Invoke(message.CommandAndKey);
             return multiplexer.ExecuteAsyncImpl<T>(message, processor, asyncState, server);
         }
 
@@ -51,6 +54,7 @@ namespace StackExchange.Redis
         {
             if (message == null) return default(T); // no-op
             multiplexer.CheckMessage(message);
+            _getCommandDelegate?.Invoke(message.CommandAndKey);
             return multiplexer.ExecuteSyncImpl<T>(message, processor, server);
         }
 
