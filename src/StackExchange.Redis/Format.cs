@@ -4,6 +4,7 @@ using System.Buffers.Text;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -79,17 +80,21 @@ namespace StackExchange.Redis
 
         internal static string ToString(EndPoint endpoint)
         {
-            if (endpoint is DnsEndPoint dns)
+            switch (endpoint)
             {
-                if (dns.Port == 0) return dns.Host;
-                return dns.Host + ":" + Format.ToString(dns.Port);
+                case DnsEndPoint dns:
+                    if (dns.Port == 0) return dns.Host;
+                    return dns.Host + ":" + Format.ToString(dns.Port);
+                case IPEndPoint ip:
+                    if (ip.Port == 0) return ip.Address.ToString();
+                    return ip.Address + ":" + Format.ToString(ip.Port);
+#if UNIX_SOCKET
+                case UnixDomainSocketEndPoint uds:
+                    return "!" + uds.ToString();
+#endif
+                default:
+                    return endpoint?.ToString() ?? "";
             }
-            if (endpoint is IPEndPoint ip)
-            {
-                if (ip.Port == 0) return ip.Address.ToString();
-                return ip.Address + ":" + Format.ToString(ip.Port);
-            }
-            return endpoint?.ToString() ?? "";
         }
 
         internal static string ToStringHostOnly(EndPoint endpoint)
@@ -230,7 +235,7 @@ namespace StackExchange.Redis
             // Link: https://github.com/aspnet/BasicMiddleware/blob/f320511b63da35571e890d53f3906c7761cd00a1/src/Microsoft.AspNetCore.HttpOverrides/Internal/IPEndPointParser.cs#L8
             // Copyright (c) .NET Foundation. All rights reserved.
             // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-            string addressPart = null;
+            string addressPart;
             string portPart = null;
             if (string.IsNullOrEmpty(addressWithPort)) return null;
 

@@ -88,7 +88,7 @@ namespace StackExchange.Redis.Tests
 #if VERBOSE
         protected const int AsyncOpsQty = 100, SyncOpsQty = 10;
 #else
-        protected const int AsyncOpsQty = 10000, SyncOpsQty = 10000;
+        protected const int AsyncOpsQty = 2000, SyncOpsQty = 2000;
 #endif
 
         static TestBase()
@@ -237,7 +237,7 @@ namespace StackExchange.Redis.Tests
             {
                 configuration = GetConfiguration();
                 if (configuration == _fixture.Configuration)
-                {   // only if the 
+                {   // only if the
                     return _fixture.Connection;
                 }
             }
@@ -311,8 +311,7 @@ namespace StackExchange.Redis.Tests
                         {
                             GC.KeepAlive(x.Exception);
                         }
-                        catch
-                        { }
+                        catch { /* No boom */ }
                     }, TaskContinuationOptions.OnlyOnFaulted);
                     throw new TimeoutException("Connect timeout");
                 }
@@ -413,7 +412,9 @@ namespace StackExchange.Redis.Tests
                 for (int i = 0; i < threads; i++)
                 {
                     var thd = threadArr[i];
+#pragma warning disable SYSLIB0006 // yes, we know
                     if (thd.IsAlive) thd.Abort();
+#pragma warning restore SYSLIB0006 // yes, we know
                 }
                 throw new TimeoutException();
             }

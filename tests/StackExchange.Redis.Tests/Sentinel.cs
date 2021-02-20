@@ -57,7 +57,7 @@ namespace StackExchange.Redis.Tests
         [Fact]
         public void MasterConnectTest()
         {
-            var connectionString = $"{TestConfig.Current.SentinelServer}:{TestConfig.Current.SentinelPortA},serviceName={ServiceOptions.ServiceName},allowAdmin=true";
+            var connectionString = $"{TestConfig.Current.SentinelServer},serviceName={ServiceOptions.ServiceName},allowAdmin=true";
             var conn = ConnectionMultiplexer.Connect(connectionString);
 
             var db = conn.GetDatabase();
@@ -93,7 +93,7 @@ namespace StackExchange.Redis.Tests
         [Fact]
         public async Task MasterConnectAsyncTest()
         {
-            var connectionString = $"{TestConfig.Current.SentinelServer}:{TestConfig.Current.SentinelPortA},serviceName={ServiceOptions.ServiceName},allowAdmin=true";
+            var connectionString = $"{TestConfig.Current.SentinelServer},serviceName={ServiceOptions.ServiceName},allowAdmin=true";
             var conn = await ConnectionMultiplexer.ConnectAsync(connectionString);
 
             var db = conn.GetDatabase();
@@ -217,6 +217,18 @@ namespace StackExchange.Redis.Tests
             var test = await db.PingAsync();
             Log("ping to sentinel {0}:{1} took {2} ms", TestConfig.Current.SentinelServer,
                 TestConfig.Current.SentinelPortA, test.TotalMilliseconds);
+        }
+
+        [Fact]
+        public void SentinelRole()
+        {
+            foreach (var server in SentinelsServers)
+            {
+                var role = server.Role();
+                Assert.Equal(role.Value, RedisLiterals.sentinel);
+                var sentinel = role as Role.Sentinel;
+                Assert.NotNull(sentinel);
+            }
         }
 
         [Fact]
@@ -582,7 +594,10 @@ namespace StackExchange.Redis.Tests
             var checkConn = Conn.GetSentinelMasterConnection(ServiceOptions);
 
             WaitForRole(checkConn.GetServer(master), "master", duration.Value.Subtract(sw.Elapsed));
-            WaitForRole(checkConn.GetServer(replicas[0]), "slave", duration.Value.Subtract(sw.Elapsed));
+            if (replicas.Length > 0)
+            {
+                WaitForRole(checkConn.GetServer(replicas[0]), "slave", duration.Value.Subtract(sw.Elapsed));
+            }
 
             if (waitForReplication)
             {
@@ -600,7 +615,7 @@ namespace StackExchange.Redis.Tests
             {
                 try
                 {
-                    if (server.Role() == role)
+                    if (server.Role().Value == role)
                     {
                         Log($"Done waiting for server ({server.EndPoint}) role to be \"{role}\"");
                         return;

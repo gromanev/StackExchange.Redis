@@ -73,7 +73,7 @@ namespace StackExchange.Redis.Tests
         [Fact]
         public async Task ConfigVerifyReceiveConfigChangeBroadcast()
         {
-            var config = GetConfiguration();
+            _ = GetConfiguration();
             using (var sender = Create(allowAdmin: true))
             using (var receiver = Create(syncTimeout: 2000))
             {
@@ -109,6 +109,7 @@ namespace StackExchange.Redis.Tests
         public async Task DereplicateGoesToPrimary()
         {
             ConfigurationOptions config = GetMasterReplicaConfig();
+            config.ConfigCheckSeconds = 5;
             using (var conn = ConnectionMultiplexer.Connect(config))
             {
                 var primary = conn.GetServer(TestConfig.Current.FailoverMasterServerAndPort);
@@ -350,7 +351,7 @@ namespace StackExchange.Redis.Tests
                         a.GetServer(TestConfig.Current.FailoverMasterServerAndPort).MakeMaster(ReplicationChangeOptions.All);
                         await Task.Delay(1000).ForAwait();
                     }
-                    catch { }
+                    catch { /* Don't bomb here */ }
                 }
             }
         }
