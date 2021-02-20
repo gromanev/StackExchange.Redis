@@ -11,7 +11,6 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <DefineConstants Condition="'$(TargetFramework)' != 'net461'">$(DefineConstants);VECTOR_SAFE</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' != 'net461' and '$(TargetFramework)' != 'net472' and '$(TargetFramework)' != 'netstandard2.0'">$(DefineConstants);UNIX_SOCKET</DefineConstants>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Title>StackExchange.Redis.IPv6</Title>
     <RepositoryUrl>https://github.com/gromanev/StackExchange.Redis</RepositoryUrl>
     <PackageReleaseNotes />
